@@ -119,7 +119,7 @@ tr:nth-child(even) {
     position: fixed;
     bottom: 0;
     width: 100%;
-    background-color: var(--verde-base);
+    background-color: var(--verde-hover);
     color: var(--texto-claro);
     text-align: center;
     padding: 5px;

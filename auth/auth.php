@@ -23,7 +23,7 @@ $mapa_niveis = [
     3 => 'Aluno'
 ];
 
-$nivel_acesso = $mapa_niveis[$usuario['nivel_acesso']] ?? null;
+$nivel_acesso = isset($mapa_niveis[$usuario['nivel_acesso']]) ? $mapa_niveis[$usuario['nivel_acesso']] : null;
 
 $permissoes = [
     'Administrador' => ['consulta', 'inclusao', 'alteracao', 'exclusao'],

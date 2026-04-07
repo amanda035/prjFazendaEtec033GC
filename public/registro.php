@@ -1,71 +1,88 @@
 <?php
-include("../database/funcoes.php");
+// Inicialização de sessão
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Inclusão das funções auxiliares
+require_once __DIR__ . '/../include/funcoes.php';
+
+// Tratamento de erro de conexão
+if (isset($_SESSION['erro_conexao'])) {
+    mostrarMsg("Erro de conexão ao registrar usuário '" . (isset($_POST['nome']) ? $_POST['nome'] : '') . "': " . $_SESSION['erro_conexao'], 'erro', '../index.php');
+    unset($_SESSION['erro_conexao']);
+}
+
+// Verificação de usuário logado e permissão para cadastro
+$temUsuarios = verificarUsuariosExistentes();
+if ($temUsuarios) {
+    // Se já existem usuários, só permite cadastro se o usuário logado for administrador
+    if (isset($_SESSION['nome']) && isset($_SESSION['nivel_acesso']) && $_SESSION['nivel_acesso'] == 0) {
+        // Permite cadastro, mantém nível de acesso do novo usuário como padrão (Administrador)
+        $_SESSION['nivel_acesso'] = 0;
+    } else {
+        mostrarMsg('Apenas administradores podem cadastrar novos usuários. Cadastro do usuário ' . (isset($_POST['nome']) ? $_POST['nome'] : '') . ' bloqueado.', 'atencao', '../index.php');
+        // exit;
+    }
+} else {
+    // Se não houver usuários, permite cadastro do primeiro usuário como administrador
+    $_SESSION['nivel_acesso'] = 0;
+}
+
+// Geração do token CSRF
+if (empty($_SESSION['csrf'])) {
+    gerarCSRF();
+}
+$csrf_token = $_SESSION['csrf'];
+
 ?>
-<!-- Regras de Negócio para o cadastro de usuários:
-    O campo usuário:
-        - Deve ser único e não pode conter caracteres especiais.
-        - Deve ter entre 3 e 20 caracteres. 
-        - Não pode ser igual ao nome do usuário logado.
-    O campo senha:
-        - Deve ter entre 6 e 20 caracteres.
-        - Deve conter letras maiúsculas, minúsculas, números e simbolos.
-        - Não pode ser igual ao nome do usuário logado.
-    O campo email:
-        - Deve ser único e não pode conter caracteres especiais.
-        - Deve ser um email válido.
-        - Não pode ser igual ao email do usuário logado.
-    O campo nível de acesso:
-        - Deve ser um dos seguintes: administrador, docente, auxiliar docente ou aluno.
-        - Não pode ser igual ao nível de acesso do usuário logado.
-    - O usuário logado não pode cadastrar outro usuário com o mesmo nível de acesso.
-    - O usuário logado não pode cadastrar outro usuário com o mesmo nome de usuário ou email.
--->
+
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro - Sistema Fazenda ETEC</title>
 </head>
-
 <body>
     <button onclick="history.back()">Voltar para index</button>
 
     <form action="../auth/registrar.php" method="POST">
         <h2>Cadastrar Usuário</h2>
-        <!-- O input abaixo é do tipo hidden que ele vai mandar o token CSRF -->
-        <input type="hidden" name="csrf" value="<?= gerarCSRF() ?>">
-        <!-- Este pattern abaixo no input text faz o seguinte:
-                Deve ser único e não pode conter caracteres especiais: ^[a-zA-Z0-9] - Garante que apenas caracteres alfanuméricos sejam permitidos.
-                Deve ter entre 3 e 20 caracteres: {3,20}$ - Limita o comprimento do campo entre 3 e 20 caracteres.
-            -->
+
+        <!-- Token CSRF -->
+        <input type="hidden" name="csrf" value="<?php echo $csrf_token; ?>">
+        <!-- Campo Usuário -->
         <label for="usuario">Usuário:</label>
         <input type="text" id="usuario" name="usuario" required pattern="^[a-zA-Z0-9]{3,20}$">
-        <!-- O pattern abaixo utilizado no input email faz o seguinte:
-                Deve ser único e não pode conter caracteres especiais: ^[a-zA-Z0-9._%+-]+ - Garante que apenas caracteres alfanuméricos e alguns caracteres permitidos (ponto, sublinhado, porcentagem, mais e hífen) sejam usados antes do símbolo @.
-                Deve ser um email válido: @[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ - Garante que o formato do email seja válido, incluindo o domínio e a extensão.
-            -->
+
+        <!-- Campo Email -->
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" required pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$">
 
-        <!-- O pattern abaixo utilizado no input password faz o seguinte:
-                Deve ter entre 6 e 20 caracteres: [A-Za-z\d@$!%*?&]{6,20}$ - Limita o comprimento do campo entre 6 e 20 caracteres.
-                Deve conter letras maiúsculas: (?=.*[A-Z]) - Garante que haja pelo menos uma letra maiúscula.
-                Deve conter letras minúsculas: (?=.*[a-z]) - Garante que haja pelo menos uma letra minúscula.
-                Deve conter números: (?=.*\d) - Garante que haja pelo menos um número.
-                Deve conter símbolos: (?=.*[@$!%*?&]) - Garante que haja pelo menos um símbolo especial.
-            -->
         <label for="senha">Senha:</label>
         <input type="password" id="senha" name="senha" required
             pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,20}$">
-        <label for="cofirma_senha">Confirmar senha:</label>
-        <input type="password" name="confirma_senha" id="confirma_senha"
+        <label for="confirma_senha">Confirmar senha:</label>
+        <input type="password" name="confirma_senha" id="confirma_senha" required
             pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,20}$">
 
-        <input type="submit" value="Cadastrar">
+        <?php 
+            // Se não houver usuários, não mostra o campo de nível (será definido como administrador automaticamente)
+            if ($temUsuarios && isset($_SESSION['nivel_acesso']) && $_SESSION['nivel_acesso'] == 0): 
+        ?>
+                <label for="nivel_acesso">Nível de Acesso:</label>
+                <select name="nivel_acesso" id="nivel_acesso">
+                    <option value="0">Administrador</option>
+                    <option value="1">Docente</option>
+                    <option value="2">Auxiliar Docente</option>
+                    <option value="3">Aluno</option>
+                </select>
+        <?php 
+            endif;
+        ?>
 
+        <input type="submit" value="Cadastrar">
     </form>
 </body>
-
 </html>

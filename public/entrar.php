@@ -31,21 +31,22 @@
             <input type="text" id="usuario" name="usuario" required pattern="^[a-zA-Z0-9]{3,20}$">
 
             <label for="senha">Senha:</label>
-            <input type="password" id="senha" name="senha" required
-                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,20}$">
+            <input type="password" id="senha" name="senha" required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,20}$">
 
-                <div class="options">
-                    <label><input type="checkbox"> Lembrar pra mim</label>
-                    <a href="#">Esqueci minha senha</a>
-                </div>
+            <div class="options">
+                <label><input type="checkbox">Lembrar pra mim</label>
+                <a href="#">Esqueci minha senha</a>
+            </div>
 
-            <button type="submit" class="btn" value="Submit">Entrar</button>
+            <button type="submit" class="btn" value="Submit" autofocus>Entrar</button>
             
-                <div class="create-account">            
+            <div class="create-account">            
                 <a href="registro.php">Não tem usuário? Cadastre-se</a>
-                </div>
+            </div>
         </form>
+        <!--
         <button onclick="history.back()">Voltar para index</button>
+-->
         
     </div>
     <!--

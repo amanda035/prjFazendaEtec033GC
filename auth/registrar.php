@@ -1,88 +1,105 @@
 <?php
+session_start();
+
+// Verifica se há dados de login válidos
+$usuario_logado = isset($_SESSION['nome']) && $_SESSION['nome'] !== ''
+               && isset($_SESSION['email']) && $_SESSION['email'] !== '';
+if ($usuario_logado) {
+    $usuario = htmlspecialchars($_SESSION['nome']);
+    $email = htmlspecialchars($_SESSION['email']);
+} else {
+    $usuario = 'sem usuário';
+    $email = '';
+}
+
 include("../database/conexao.php");
-include("../database/funcoes.php");
+include("../include/funcoes.php");
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Verificar se tem todos os dados obrigatórios
-    if (!isset($_POST["usuario"], $_POST["senha"], $_POST["confirma_senha"], $_POST["email"], $_POST["csrf"])) {
-        die("Erro: Campos obrigatórios não enviados.");
+$conn = $GLOBALS['conn'];
+if ($conn === null) {
+    mostrarMsg("O sistema está temporariamente indisponível para registro de usuário devido a problemas de conexão com o banco de dados.", 'erro', '../index.php');
+}
+
+// Verifica se o método é POST
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    mostrarMsg("O método passado para o registro de usuário é inválido!", 'erro', '../index.php');
+}
+
+// Verifica campos obrigatórios
+$camposObrigatorios = ["usuario", "senha", "confirma_senha", "email", "csrf"];
+foreach ($camposObrigatorios as $campo) {
+    if (!isset($_POST[$campo])) {
+    mostrarMsg("Campo obrigatório $campo não enviado para cadastro de usuário.", 'atencao', '../public/registro.php');
     }
+}
 
-    //Sanitizar os dados recebidos por POST
-    $usuario = strip_tags(trim($_POST['usuario']));
-    $senha = strip_tags(trim($_POST['senha']));
-    $confirma_senha = strip_tags(trim($_POST["confirma_senha"]));
-    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-    $data_cadastro = date('Y-m-d H:i:s');
-    $csrf = strip_tags(trim($_POST["csrf"]));
+// Sanitização
+$usuario = htmlspecialchars(strip_tags(trim($_POST['usuario'])));
+$senha = strip_tags(trim($_POST['senha']));
+$confirma_senha = strip_tags(trim($_POST["confirma_senha"]));
+$email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+$csrf = strip_tags(trim($_POST["csrf"]));
 
-    // Validar token CSRF que vem do formulário
-    if (!validarCSRF($csrf) == true) {
-        die("Erro: Token CSRF inválido.");
+// Validações
+if (!validarCSRF($csrf)) {
+    mostrarMsg("Token CSRF inválido ao tentar cadastrar usuário.", 'erro', '../index.php');
+} 
+if (!validarUsuario($usuario)) {
+    mostrarMsg("Nome de usuário $nome inválido. Deve conter apenas letras e números, entre 3 e 20 caracteres.", 'atencao', '../public/registro.php');
+}
+if ($senha !== $confirma_senha) {
+    mostrarMsg("As senhas não conferem.", 'atencao', '../public/registro.php');
+}
+if (!validarSenha($senha)) {
+    mostrarMsg("Senha inválida para cadastro de usuário. Deve conter pelo menos 6 caracteres, <br>
+    incluindo letras maiúsculas, minúsculas, números e símbolos.", 'atencao', '../public/registro.php');
+}
+if (!validarEmail($email)) {
+    mostrarMsg("Email informado para cadastro de usuário é inválido.", 'atencao', '../public/registro.php');
+}
+if (verificarContaExiste($usuario, $email)) {
+    mostrarMsg("Usuário $nome ou email já cadastrados.", 'atencao', '../public/registro.php');
+}
+// Impede duplicação com usuário logado (somente se ambos os dados forem iguais)
+if ($usuario_logado && $_SESSION['nivel_acesso'] != 0) {
+    if ($usuario === $_SESSION['nome'] && $email === $_SESSION['email']) {
+    mostrarMsg("Não é permitido cadastrar o usuário $nome com os mesmos dados do usuário logado.", 'atencao', '../public/registro.php');
     }
+}
 
-    // Validar usuário que vem do formulário
-    if (!validarUsuario($usuario) == true) {
-        die("Erro: Nome de usuário inválido.");
-    }
+// Criptografa a senha
+$senha_hash = password_hash($senha, PASSWORD_DEFAULT);
 
-    //Validar senha que vem do formulário
-    if ($senha === $confirma_senha) {
-        if ((validarSenha($senha) == true) && (validarSenha($confirma_senha) == true)) {
-            // Hash da senha
-            $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
-        } else {
-            die("Erro: Senha inválida.");
-        }
-    } else {
-        die("Erro: Senhas não conferem.");
-    }
+// Verifica se já existe algum usuário no sistema
+$usuarios_existem = verificarUsuariosExistentes();
 
-
-    if (!validarEmail($email) == true) {
-        die("Erro: Email inválido.");
-    }
-
-    // Verificações contra o usuário logado
-    if (isset($_SESSION['nome'], $_SESSION['email'], $_SESSION['nivel_acesso'])) {
-        if (
-            $usuario === $_SESSION['nome'] ||
-            $email === $_SESSION['email'] ||
-            $nivel_acesso === $_SESSION['nivel_acesso']
-        ) {
-            die("Erro: Não é permitido cadastrar um usuário com os mesmos dados do usuário logado.");
-        }
-    }
-
-    // Verifica se usuário existe
-    if (verificarContaExiste($email, $usuario) == true) {
-        die("Erro: Nome de usuário ou email já cadastrados.");
-    }
-
-    // Validar para saber se os dados chegaram corretamente depois das validações
-    if (!empty($usuario) && !empty($senha) && !empty($email) && !empty($data_cadastro)) {
-        try {
-            // Inserção no banco
-            $insert = "INSERT INTO usuarios (nome, senha, email, data_cadastro) VALUES (?, ?, ?, ?)";
-            $stmt = $conn->prepare($insert);
-            $stmt->bind_param("ssss", $usuario, $senha_hash, $email, $data_cadastro);
-
-            // Se executar manda para a index, se não dá uma mensagem de erro.
-            if ($stmt->execute()) {
-                header("Location: ../entrar.php");
-                exit;
-            } else {
-                die("Erro ao cadastrar: " . $stmt->error);
-            }
-            $stmt->close();
-        } catch (Exception $erro) {
-            die("Erro: " . $erro->getCode());
-        }
-    } else {
-        die("Erro: Os parâmetros não chegaram corretamente!");
+// Define o nível de acesso
+if (!$usuarios_existem) {
+    $nivel_acesso = 0; // Primeiro usuário é administrador
+} elseif (isset($_SESSION['nivel_acesso']) && $_SESSION['nivel_acesso'] == 0 && isset($_POST['nivel_acesso'])) {
+    // Administrador logado pode definir o nível de acesso
+    $nivel_acesso = intval($_POST['nivel_acesso']);
+    if ($nivel_acesso < 0 || $nivel_acesso > 3) {
+        $nivel_acesso = 3; // Padrão: Aluno
     }
 } else {
-    die("Erro: método inválido!");
+    $nivel_acesso = 3; // Padrão: Aluno
+}
+
+// Prepara e executa a inserção no banco
+$stmt = $conn->prepare("INSERT INTO usuarios (nome, senha, email, nivel_acesso, data_criacao) VALUES (?, ?, ?, ?, NOW())");
+if (!$stmt) {
+    mostrarMsg("Erro ao preparar a query para cadastro do usuário $nome: " . $conn->error . ".", 'erro', '../public/registro.php');
+}
+
+$stmt->bind_param("sssi", $usuario, $senha_hash, $email, $nivel_acesso);
+
+if ($stmt->execute()) {
+    $stmt->close();
+    mostrarMsg("Usuário $nome cadastrado com sucesso!", 'acerto', '../index.php');
+} else {
+    mostrarMsg("Erro ao cadastrar usuário $nome: " . $stmt->error . ".", 'erro', '../public/registro.php');
 }
 
 $conn->close();
+?>

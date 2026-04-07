@@ -1,0 +1,23 @@
+:root {
+  --cor-primaria: #009900;
+  --cor-erro: #a00;
+  --cor-sucesso: #0a0;
+  --cor-atencao: #e6b800;
+  --fonte-padrao: 'Arial', sans-serif;
+  --espaco-padrao: 16px;
+}
+
+body {
+  font-family: var(--fonte-padrao);
+  margin: 0;
+  padding: 0;
+  background: #f5f5f5;
+}
+.btn {
+  background: var(--cor-primaria);
+  color: #fff;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}

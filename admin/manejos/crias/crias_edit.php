@@ -12,12 +12,49 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $peso_nascimento = $_POST['peso_nascimento'];
     $data_nascimento = $_POST['data_nascimento'];
 
-    $sql = "UPDATE crias SET parto_id='$parto_id', nome='$nome', peso_nascimento='$peso_nascimento', data_nascimento='$data_nascimento' WHERE id=$id";
-    if ($conn->query($sql) === TRUE) {
-        header('Location: crias.php');
-    } else {
-        echo "Erro: " . $sql . "<br>" . $conn->error;
+    $stmt = $conn->prepare("UPDATE crias SET parto_id=?, nome=?, peso_nascimento=?, data_nascimento=? WHERE id=?");
+    if ($stmt === false) {
+        mostrarMsg("Erro ao preparar declaração para edição da cria '" . $nome . "': " . $conn->error, 'erro', 'crias.php');
+        exit;
     }
+    $stmt->bind_param("isdsi", $parto_id, $nome, $peso_nascimento, $data_nascimento, $id);
+    if (!$stmt->execute()) {
+        mostrarMsg("Erro ao editar cria '" . $nome . "': " . $stmt->error, 'erro', 'crias.php');
+        exit;
+    }
+    $stmt->close();
+
+    // Registro no log usando tipo_acao_id
+    $usuario_id = intval($_SESSION['usuario_id']);
+    $tabela = 'crias';
+    $tipo_acao_id = null;
+    $stmt_tipo = $conn->prepare("SELECT id FROM tipos_acao WHERE nome = ? LIMIT 1");
+    if ($stmt_tipo === false) {
+        mostrarMsg("Erro ao preparar consulta de tipo de ação para edição da cria '" . $nome . "': " . $conn->error, 'atencao', 'crias.php');
+        exit;
+    }
+    $nome_acao = 'alteracao';
+    $stmt_tipo->bind_param("s", $nome_acao);
+    $stmt_tipo->execute();
+    $stmt_tipo->bind_result($tipo_acao_id);
+    $stmt_tipo->fetch();
+    $stmt_tipo->close();
+
+    $stmt_log = $conn->prepare("INSERT INTO logs (usuario_id, tabela, tipo_acao_id, data_acao) VALUES (?, ?, ?, NOW())");
+    if ($stmt_log === false) {
+        mostrarMsg("Erro ao preparar log para edição da cria '" . $nome . "': " . $conn->error, 'atencao', 'crias.php');
+        exit;
+    }
+    $stmt_log->bind_param("isi", $usuario_id, $tabela, $tipo_acao_id);
+    if (!$stmt_log->execute()) {
+        mostrarMsg("Cria '" . $nome . "' editada, mas não foi possível registrar o log.", 'atencao', 'crias.php');
+        exit;
+    }
+    $stmt_log->close();
+
+    $conn->close();
+    mostrarMsg("Cria '" . $nome . "' editada com sucesso!", 'acerto', 'crias.php');
+    exit;
 }
 ?>
 <!DOCTYPE html>
