@@ -11,7 +11,7 @@ Como configurar o Git Hub
         configure a conta de usuario ==> git config --global user.name "PaulinoFANeto"
         configure o email de usuario ==> git config --global user.email "paulino646@hotmail.com"
     Quarto:
-        configure o repositório onde ficará as mudanças do projeto ==> git remote add origin https://github.com/PaulinoFANeto/prjFazendaEtec033
+        configure o repositório onde ficará as mudanças do projeto ==> git remote add origin https://github.com/PaulinoFANeto/prjFazendaEtec033GC
 
 Como atualizar o diretório antes de começar a trabalhar no projeto
     git pull origin main ==> Deixa o diretório igual ao repositório para todos os participantes do projeto
