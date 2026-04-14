@@ -45,7 +45,7 @@ if (!validarCSRF($csrf)) {
     mostrarMsg("Token CSRF inválido ao tentar cadastrar usuário.", 'erro', '../index.php');
 } 
 if (!validarUsuario($usuario)) {
-    mostrarMsg("Nome de usuário $nome inválido. Deve conter apenas letras e números, entre 3 e 20 caracteres.", 'atencao', '../public/registro.php');
+    mostrarMsg("Nome de usuário $usuario inválido. Deve conter apenas letras e números, entre 3 e 20 caracteres.", 'atencao', '../public/registro.php');
 }
 if ($senha !== $confirma_senha) {
     mostrarMsg("As senhas não conferem.", 'atencao', '../public/registro.php');
@@ -58,12 +58,12 @@ if (!validarEmail($email)) {
     mostrarMsg("Email informado para cadastro de usuário é inválido.", 'atencao', '../public/registro.php');
 }
 if (verificarContaExiste($usuario, $email)) {
-    mostrarMsg("Usuário $nome ou email já cadastrados.", 'atencao', '../public/registro.php');
+    mostrarMsg("Usuário $usuario ou email já cadastrados.", 'atencao', '../public/registro.php');
 }
 // Impede duplicação com usuário logado (somente se ambos os dados forem iguais)
 if ($usuario_logado && $_SESSION['nivel_acesso'] != 0) {
     if ($usuario === $_SESSION['nome'] && $email === $_SESSION['email']) {
-    mostrarMsg("Não é permitido cadastrar o usuário $nome com os mesmos dados do usuário logado.", 'atencao', '../public/registro.php');
+    mostrarMsg("Não é permitido cadastrar o usuário $usuario com os mesmos dados do usuário logado.", 'atencao', '../public/registro.php');
     }
 }
 
@@ -89,16 +89,16 @@ if (!$usuarios_existem) {
 // Prepara e executa a inserção no banco
 $stmt = $conn->prepare("INSERT INTO usuarios (nome, senha, email, nivel_acesso, data_criacao) VALUES (?, ?, ?, ?, NOW())");
 if (!$stmt) {
-    mostrarMsg("Erro ao preparar a query para cadastro do usuário $nome: " . $conn->error . ".", 'erro', '../public/registro.php');
+    mostrarMsg("Erro ao preparar a query para cadastro do usuário $usuario: " . $conn->error . ".", 'erro', '../public/registro.php');
 }
 
 $stmt->bind_param("sssi", $usuario, $senha_hash, $email, $nivel_acesso);
 
 if ($stmt->execute()) {
     $stmt->close();
-    mostrarMsg("Usuário $nome cadastrado com sucesso!", 'acerto', '../index.php');
+    mostrarMsg("Usuário $usuario cadastrado com sucesso!", 'acerto', '../index.php');
 } else {
-    mostrarMsg("Erro ao cadastrar usuário $nome: " . $stmt->error . ".", 'erro', '../public/registro.php');
+    mostrarMsg("Erro ao cadastrar usuário $usuario: " . $stmt->error . ".", 'erro', '../public/registro.php');
 }
 
 $conn->close();
