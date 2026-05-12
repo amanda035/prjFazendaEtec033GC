@@ -20,19 +20,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $stmt = $conn->prepare("UPDATE alimentos SET nome = ?, descricao = ?, tipo_alimento = ?, usuario_atualizacao_id = ?, data_atualizacao = NOW() WHERE id = ?");
     if ($stmt === false) {
-        mostrarMsg("Erro na preparação da declaração do alimento $nome.", 'erro', '/prjFazendaEtec033/admin/manejos/alimentos/alimentos_select.php');
+        mostrarMsg("Erro na preparação da declaração do alimento $nome.", 'erro', '/prjFazendaEtec033GC/admin/manejos/alimentos/alimentos_select.php');
     }
 
     $stmt->bind_param("ssssi", $nome, $descricao, $tipo_alimento, $usuario_id, $id);
     if (!$stmt->execute()) {
-        mostrarMsg("Erro ao atualizar alimento $nome: " . $stmt->error, 'erro', '/prjFazendaEtec033/admin/manejos/alimentos/alimentos_select.php');
+        mostrarMsg("Erro ao atualizar alimento $nome: " . $stmt->error, 'erro', '/prjFazendaEtec033GC/admin/manejos/alimentos/alimentos_select.php');
     }
 
     // Buscar o id do tipo de ação "alteracao"
     $tipo_acao_id = null;
     $stmt_tipo = $conn->prepare("SELECT id FROM tipos_acao WHERE nome = ? LIMIT 1");
     if ($stmt_tipo === false) {
-        mostrarMsg("Erro ao buscar tipo de ação 'alteracao' para alimento $nome: " . $conn->error, 'atencao', '/prjFazendaEtec033/admin/manejos/alimentos/alimentos_select.php');
+        mostrarMsg("Erro ao buscar tipo de ação 'alteracao' para alimento $nome: " . $conn->error, 'atencao', '/prjFazendaEtec033GC/admin/manejos/alimentos/alimentos_select.php');
         exit;
     }
     $nome_acao = 'alteracao';
@@ -46,12 +46,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $tabela = 'alimentos';
     $stmt_log = $conn->prepare("INSERT INTO logs (usuario_id, tabela, tipo_acao_id, data_acao) VALUES (?, ?, ?, NOW())");
     if ($stmt_log === false) {
-        mostrarMsg("Erro ao preparar log para alimento $nome: " . $conn->error, 'atencao', '/prjFazendaEtec033/admin/manejos/alimentos/alimentos_select.php');
+        mostrarMsg("Erro ao preparar log para alimento $nome: " . $conn->error, 'atencao', '/prjFazendaEtec033GC/admin/manejos/alimentos/alimentos_select.php');
         exit;
     }
     $stmt_log->bind_param("isi", $usuario_id, $tabela, $tipo_acao_id);
     if (!$stmt_log->execute()) {
-        mostrarMsg("Alimento $nome editado, mas não foi possível registrar o log.", 'atencao', '/prjFazendaEtec033/admin/manejos/alimentos/alimentos_select.php');
+        mostrarMsg("Alimento $nome editado, mas não foi possível registrar o log.", 'atencao', '/prjFazendaEtec033GC/admin/manejos/alimentos/alimentos_select.php');
         exit;
     }
     $stmt_log->close();
@@ -60,26 +60,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt_log->close();
     $conn->close();
 
-    mostrarMsg("Alimento $nome editado com sucesso!", 'acerto', '/prjFazendaEtec033/admin/manejos/alimentos/alimentos_select.php');
+    mostrarMsg("Alimento $nome editado com sucesso!", 'acerto', '/prjFazendaEtec033GC/admin/manejos/alimentos/alimentos_select.php');
 }
 
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
     $stmt = $conn->prepare("SELECT * FROM alimentos WHERE id = ?");
     if ($stmt === false) {
-        mostrarMsg("Erro na preparação da consulta: " . $conn->error, 'erro', '/prjFazendaEtec033/admin/manejos/alimentos/alimentos_select.php', "Falha ao preparar SELECT do alimento");
+        mostrarMsg("Erro na preparação da consulta: " . $conn->error, 'erro', '/prjFazendaEtec033GC/admin/manejos/alimentos/alimentos_select.php', "Falha ao preparar SELECT do alimento");
     }
     $stmt->bind_param("i", $id);
     if (!$stmt->execute()) {
-        mostrarMsg("Erro ao buscar alimento: " . $stmt->error, 'erro', '/prjFazendaEtec033/admin/manejos/alimentos/alimentos_select.php', "Falha ao executar SELECT do alimento");
+        mostrarMsg("Erro ao buscar alimento: " . $stmt->error, 'erro', '/prjFazendaEtec033GC/admin/manejos/alimentos/alimentos_select.php', "Falha ao executar SELECT do alimento");
     }
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
     $stmt->close();
     if (!$row) {
-        mostrarMsg("Alimento não encontrado.", 'atencao', '/prjFazendaEtec033/admin/manejos/alimentos/alimentos_select.php', "ID informado: $id");
+        mostrarMsg("Alimento não encontrado.", 'atencao', '/prjFazendaEtec033GC/admin/manejos/alimentos/alimentos_select.php', "ID informado: $id");
     }
 } else {
-    mostrarMsg("ID do alimento não fornecido.", 'atencao', '/prjFazendaEtec033/admin/manejos/alimentos/alimentos_select.php', "Nenhum ID recebido");
+    mostrarMsg("ID do alimento não fornecido.", 'atencao', '/prjFazendaEtec033GC/admin/manejos/alimentos/alimentos_select.php', "Nenhum ID recebido");
 }
 ?>

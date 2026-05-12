@@ -28,12 +28,12 @@ if (isset($_SESSION['mensagem_sistema'])) {
     } else if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'exibir_msg.php') === false) {
         $pagina_retorno = $_SERVER['HTTP_REFERER'];
     } else {
-        $pagina_retorno = 'prjFazendaEtec033/index.php';
+        $pagina_retorno = 'prjFazendaEtec033GC/index.php';
     }
 } else {
     $mensagem = "Erro desconhecido.";
     $tipo = "erro";
-    $pagina_retorno = 'prjFazendaEtec033/index.php';
+    $pagina_retorno = 'prjFazendaEtec033GC/index.php';
 }
 unset($_SESSION['mensagem_sistema'], $_SESSION['pagina_retorno']);
 $config = isset($tipos[$tipo]) ? $tipos[$tipo] : $tipos['erro'];

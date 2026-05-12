@@ -1,7 +1,7 @@
 <?php
 
 $titulo_pagina = "Bem-vindo à tela de Editar Matriz";
-$diretorioRetorno = '/prjFazendaEtec033/admin/manejos/matrizes/matrizes_select.php';
+$diretorioRetorno = '/prjFazendaEtec033GC/admin/manejos/matrizes/matrizes_select.php';
 
 include_once(__DIR__ . "/../../../auth/auth.php");
 include_once(__DIR__ . "/../../../include/funcoes.php");
@@ -11,7 +11,7 @@ global $conn;
 // Sessão já validada pelo auth.php
 $usuario_id = intval($_SESSION['usuario_id']);
 // ...código existente...
-$diretorioRetorno = '/prjFazendaEtec033/admin/manejos/matrizes/matrizes_select.php';
+$diretorioRetorno = '/prjFazendaEtec033GC/admin/manejos/matrizes/matrizes_select.php';
 include_once(__DIR__ . '/../../../include/header.php');
 include_once(__DIR__ . '/../../../include/modal_msg.php');
 

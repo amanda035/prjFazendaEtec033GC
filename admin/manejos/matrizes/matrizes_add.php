@@ -1,7 +1,7 @@
 <?php
 
 $titulo_pagina = "Bem-vindo à tela de Adicionar Matriz";
-$diretorioRetorno = '/prjFazendaEtec033/admin/manejos/matrizes/matrizes_select.php';
+$diretorioRetorno = '/prjFazendaEtec033GC/admin/manejos/matrizes/matrizes_select.php';
 
 
 include_once(__DIR__ . "/../../../auth/auth.php");

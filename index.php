@@ -1,7 +1,7 @@
 <?php
 
 // Define o diretório de retorno padrão
-$diretorioRetorno = '/prjFazendaEtec033/index.php';
+$diretorioRetorno = '/prjFazendaEtec033GC/index.php';
 
 // Inclui arquivos auxiliares 
 require_once __DIR__ . '/include/funcoes.php';

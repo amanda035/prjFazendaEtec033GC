@@ -19,19 +19,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $stmt = $conn->prepare("UPDATE procedimentos SET nome = ?, descricao = ?, usuario_atualizacao_id = ?, data_atualizacao = NOW() WHERE id = ?");
     if ($stmt === false) {
-        mostrarMsg("Erro na preparação da declaração do procedimento $nome.", 'erro', '/prjFazendaEtec033/admin/manejos/procedimentos/procedimentos_select.php');
+        mostrarMsg("Erro na preparação da declaração do procedimento $nome.", 'erro', '/prjFazendaEtec033GC/admin/manejos/procedimentos/procedimentos_select.php');
     }
 
     $stmt->bind_param("ssii", $nome, $descricao, $usuario_id, $id);
     if (!$stmt->execute()) {
-        mostrarMsg("Erro ao atualizar procedimento $nome: " . $stmt->error, 'erro', '/prjFazendaEtec033/admin/manejos/procedimentos/procedimentos_select.php');
+        mostrarMsg("Erro ao atualizar procedimento $nome: " . $stmt->error, 'erro', '/prjFazendaEtec033GC/admin/manejos/procedimentos/procedimentos_select.php');
     }
 
     // Buscar o id do tipo de ação "alteracao"
     $tipo_acao_id = null;
     $stmt_tipo = $conn->prepare("SELECT id FROM tipos_acao WHERE nome = ? LIMIT 1");
     if ($stmt_tipo === false) {
-        mostrarMsg("Erro ao buscar tipo de ação 'alteracao' para procedimento $nome: " . $conn->error, 'atencao', '/prjFazendaEtec033/admin/manejos/procedimentos/procedimentos_select.php');
+        mostrarMsg("Erro ao buscar tipo de ação 'alteracao' para procedimento $nome: " . $conn->error, 'atencao', '/prjFazendaEtec033GC/admin/manejos/procedimentos/procedimentos_select.php');
         exit;
     }
     $nome_acao = 'alteracao';
@@ -45,12 +45,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $tabela = 'procedimentos';
     $stmt_log = $conn->prepare("INSERT INTO logs (usuario_id, tabela, tipo_acao_id, data_acao) VALUES (?, ?, ?, NOW())");
     if ($stmt_log === false) {
-        mostrarMsg("Erro ao preparar log para procedimento $nome: " . $conn->error, 'atencao', '/prjFazendaEtec033/admin/manejos/procedimentos/procedimentos_select.php');
+        mostrarMsg("Erro ao preparar log para procedimento $nome: " . $conn->error, 'atencao', '/prjFazendaEtec033GC/admin/manejos/procedimentos/procedimentos_select.php');
         exit;
     }
     $stmt_log->bind_param("isi", $usuario_id, $tabela, $tipo_acao_id);
     if (!$stmt_log->execute()) {
-        mostrarMsg("Procedimento $nome editado, mas não foi possível registrar o log.", 'atencao', '/prjFazendaEtec033/admin/manejos/procedimentos/procedimentos_select.php');
+        mostrarMsg("Procedimento $nome editado, mas não foi possível registrar o log.", 'atencao', '/prjFazendaEtec033GC/admin/manejos/procedimentos/procedimentos_select.php');
         exit;
     }
     $stmt_log->close();
@@ -59,26 +59,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt_log->close();
     $conn->close();
 
-    mostrarMsg("Procedimento $nome editado com sucesso!", 'acerto', '/prjFazendaEtec033/admin/manejos/procedimentos/procedimentos_select.php');
+    mostrarMsg("Procedimento $nome editado com sucesso!", 'acerto', '/prjFazendaEtec033GC/admin/manejos/procedimentos/procedimentos_select.php');
 }
 
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
     $stmt = $conn->prepare("SELECT * FROM procedimentos WHERE id = ?");
     if ($stmt === false) {
-        mostrarMsg("Erro na preparação da consulta: " . $conn->error, 'erro', '/prjFazendaEtec033/admin/manejos/procedimentos/procedimentos_select.php', "Falha ao preparar SELECT do procedimento");
+        mostrarMsg("Erro na preparação da consulta: " . $conn->error, 'erro', '/prjFazendaEtec033GC/admin/manejos/procedimentos/procedimentos_select.php', "Falha ao preparar SELECT do procedimento");
     }
     $stmt->bind_param("i", $id);
     if (!$stmt->execute()) {
-        mostrarMsg("Erro ao buscar procedimento: " . $stmt->error, 'erro', '/prjFazendaEtec033/admin/manejos/procedimentos/procedimentos_select.php', "Falha ao executar SELECT do procedimento");
+        mostrarMsg("Erro ao buscar procedimento: " . $stmt->error, 'erro', '/prjFazendaEtec033GC/admin/manejos/procedimentos/procedimentos_select.php', "Falha ao executar SELECT do procedimento");
     }
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
     $stmt->close();
     if (!$row) {
-        mostrarMsg("Procedimento não encontrado.", 'atencao', '/prjFazendaEtec033/admin/manejos/procedimentos/procedimentos_select.php', "ID informado: $id");
+        mostrarMsg("Procedimento não encontrado.", 'atencao', '/prjFazendaEtec033GC/admin/manejos/procedimentos/procedimentos_select.php', "ID informado: $id");
     }
 } else {
-    mostrarMsg("ID do procedimento não fornecido.", 'atencao', '/prjFazendaEtec033/admin/manejos/procedimentos/procedimentos_select.php', "Nenhum ID recebido");
+    mostrarMsg("ID do procedimento não fornecido.", 'atencao', '/prjFazendaEtec033GC/admin/manejos/procedimentos/procedimentos_select.php', "Nenhum ID recebido");
 }
 ?>

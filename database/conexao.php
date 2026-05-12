@@ -27,6 +27,6 @@ try {
     $msg_tipo = 'erro';
     $msg_texto = "⚠️ Não foi possível conectar ao banco de dados. Verifique a conexão ou contate o suporte.";
     include_once(__DIR__ . '/../include/modal_msg.php');
-    mostrarMsg($msg_texto, $msg_tipo, '/prjFazendaEtec033/index.php');
+    mostrarMsg($msg_texto, $msg_tipo, '/prjFazendaEtec033GC/index.php');
     }
 ?>
