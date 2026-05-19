@@ -100,5 +100,7 @@ function mostrarMsg($texto, $tipo = 'erro', $retorno = null, $detalhes = null) {
 	$msg_tipo = $tipo;
 	$msg_texto = $texto;
 	$msg_detalhes = $detalhes;
+
+	echo($msg_texto);
 }
 ?>

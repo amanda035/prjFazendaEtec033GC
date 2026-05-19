@@ -11,13 +11,11 @@ if ($conn === null) {
     // Redirecionar ou mostrar aviso
     mostrarMsg("O sistema está temporariamente indisponível para login devido a problemas de conexão com o banco de dados.", 'erro', '../index.php');
     // exit; // Só use se quiser impedir ações específicas
-    echo("11");
 } else {
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Verificar se tem todos os dados obrigatórios
         if (!isset($_POST["usuario"], $_POST["senha"])) {
             mostrarMsg("Campos obrigatórios para login não enviados.", 'erro', '../index.php');
-            echo("3");
         }
 
         //Sanitizar os dados recebidos por POST
@@ -26,14 +24,12 @@ if ($conn === null) {
 
         // Validar usuário que vem do formulário
         if (!validarUsuario($usuario) == true) {
-            mostrarMsg("Nome de usuário '" . (isset($_POST['nome']) ? $_POST['nome'] : '') . "' inválido.", 'atencao', '../index.php');
-            echo("2");
+            mostrarMsg("Nome de usuário " . (isset($_POST['nome']) ? $_POST['nome'] : '') . "' inválido.", 'atencao', '../index.php');
         }
 
         //Validar senha que vem do formulário
         if (!validarSenha($senha) == true) {
-            mostrarMsg("Senha informada para login do usuário '" . (isset($_POST['nome']) ? $_POST['nome'] : '') . "' inválida.", 'atencao', '../index.php');
-            echo("1");
+            mostrarMsg("Senha informada para login do usuário " . (isset($_POST['nome']) ? $_POST['nome'] : '') . "' inválida.", 'atencao', '../index.php');
         }
 
         // Validar para saber se os dados chegaram corretamente depois das validações
@@ -45,8 +41,7 @@ if ($conn === null) {
                 $stmt->execute();
                 $stmt->store_result();
                 if ($stmt->num_rows() <= 0) {
-                    mostrarMsg("Usuário '" . (isset($_POST['nome']) ? $_POST['nome'] : '') . "' ou senha inválidos.", 'erro', '../index.php');
-                    echo("4");
+                    mostrarMsg("Usuário " . (isset($_POST['nome']) ? $_POST['nome'] : '') . " ou senha inválidos.", 'erro', '../index.php');
                 }
                 $stmt->bind_result($id, $usuario_db, $email, $nivel_acesso, $senha_db);
                 if ($stmt->fetch()) {
@@ -71,27 +66,21 @@ if ($conn === null) {
 
                         header("Location: ../admin/atividades.php");
                         //exit;
-                        echo("5");
                     } else {
-                        mostrarMsg("Usuário '" . (isset($_POST['nome']) ? $_POST['nome'] : '') . "' ou senha incorretos.", 'erro', '../index.php');
-                        echo("6");
+                        mostrarMsg("Usuário " . (isset($_POST['nome']) ? $_POST['nome'] : '') . " ou senha incorretos.", 'erro', '../index.php');
                     }
                 } else {
-                    mostrarMsg("Os parâmetros para login do usuário '" . (isset($_POST['nome']) ? $_POST['nome'] : '') . "' não chegaram corretamente! fetch", 'erro', '../index.php');
-                    echo("7");
+                    mostrarMsg("Os parâmetros para login do usuário " . (isset($_POST['nome']) ? $_POST['nome'] : '') . "' não chegaram corretamente! fetch", 'erro', '../index.php');
                 }
                 $stmt->close();
             } catch (Exception $erro) {
-                mostrarMsg("Erro ao tentar login do usuário '" . (isset($_POST['nome']) ? $_POST['nome'] : '') . "': " . $erro->getCode(), 'erro', '../index.php');
-                echo("8");
+                mostrarMsg("Erro ao tentar login do usuário " . (isset($_POST['nome']) ? $_POST['nome'] : '') . "': " . $erro->getCode(), 'erro', '../index.php');
             }
         } else {
-            mostrarMsg("Os parâmetros para login do usuário '" . (isset($_POST['nome']) ? $_POST['nome'] : '') . "' não chegaram corretamente!", 'erro', '../index.php');
-            echo("9");
+            mostrarMsg("Os parâmetros para login do usuário " . (isset($_POST['nome']) ? $_POST['nome'] : '') . "' não chegaram corretamente!", 'erro', '../index.php');
         }
     } else {
-    mostrarMsg("Método inválido para login do usuário '" . (isset($_POST['nome']) ? $_POST['nome'] : '') . "'!", 'erro', '../index.php');
-    echo("10");
+    mostrarMsg("Método inválido para login do usuário " . (isset($_POST['nome']) ? $_POST['nome'] : '') . "'!", 'erro', '../index.php');
     }
 
     $conn->close();
