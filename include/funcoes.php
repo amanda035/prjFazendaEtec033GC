@@ -96,11 +96,24 @@ function validarCSRF($csrf) {
 
 // Exibe mensagem de sistema
 function mostrarMsg($texto, $tipo = 'erro', $retorno = null, $detalhes = null) {
+	if (session_status() === PHP_SESSION_NONE) {
+		session_start();
+	}
+
+	$_SESSION['flash_msg'] = [
+		'tipo' => $tipo,
+		'texto' => $texto,
+		'detalhes' => $detalhes,
+	];
+
+	if ($retorno) {
+		header('Location: ' . $retorno);
+		exit;
+	}
+
 	global $msg_tipo, $msg_texto, $msg_detalhes;
 	$msg_tipo = $tipo;
 	$msg_texto = $texto;
 	$msg_detalhes = $detalhes;
-
-	echo($msg_texto);
 }
 ?>
