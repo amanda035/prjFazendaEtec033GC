@@ -101,7 +101,7 @@ if ($result === false) {
                                     <button class="btn"
                                             title="Excluir vacina <?php echo $nomeVacinaEscapado; ?>"
                                             aria-label="Excluir vacina <?php echo $nomeVacinaEscapado; ?>"
-                                            onclick="if(confirm('Deseja realmente excluir a vacina <?php echo $nomeVacinaEscapado; ?>?')) window.location.href='delete_vacina.php?id=<?php echo $row['id']; ?>'">Excluir</button>
+                                            onclick="if(confirm('Deseja realmente excluir a vacina <?php echo $nomeVacinaEscapado; ?>?')) window.location.href='vacinas_delete.php?id=<?php echo $row['id']; ?>'">Excluir</button>
                                 <?php endif; ?>
                             </td>
                         <?php endif; ?>

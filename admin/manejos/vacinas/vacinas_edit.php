@@ -1,5 +1,6 @@
 <?php
 include(__DIR__ . "/../../../auth/auth.php");
+include_once(__DIR__ . "/../../../include/funcoes.php");
 
 $id = $_GET['id'];
 $sql = "SELECT * FROM vacinas WHERE id=$id";
@@ -12,12 +13,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $stmt = $conn->prepare("UPDATE vacinas SET nome=?, descricao=? WHERE id=?");
     if ($stmt === false) {
-        mostrarMsg("Erro ao preparar declaração para edição da vacina '" . $nome . "': " . $conn->error, 'erro', 'vacinas.php');
+        mostrarMsg("Erro ao preparar declaração para edição da vacina '" . $nome . "': " . $conn->error, 'erro', 'vacinas_select.php');
         exit;
     }
     $stmt->bind_param("ssi", $nome, $descricao, $id);
     if (!$stmt->execute()) {
-        mostrarMsg("Erro ao editar vacina '" . $nome . "': " . $stmt->error, 'erro', 'vacinas.php');
+        mostrarMsg("Erro ao editar vacina '" . $nome . "': " . $stmt->error, 'erro', 'vacinas_select.php');
         exit;
     }
     $stmt->close();
@@ -40,18 +41,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $stmt_log = $conn->prepare("INSERT INTO logs (usuario_id, tabela, tipo_acao_id, data_acao) VALUES (?, ?, ?, NOW())");
     if ($stmt_log === false) {
-        mostrarMsg("Erro ao preparar log para edição da vacina '" . $nome . "': " . $conn->error, 'atencao', 'vacinas.php');
+        mostrarMsg("Erro ao preparar log para edição da vacina '" . $nome . "': " . $conn->error, 'atencao', 'vacinas_select.php');
         exit;
     }
     $stmt_log->bind_param("isi", $usuario_id, $tabela, $tipo_acao_id);
     if (!$stmt_log->execute()) {
-        mostrarMsg("Vacina '" . $nome . "' editada, mas não foi possível registrar o log.", 'atencao', 'vacinas.php');
+        mostrarMsg("Vacina '" . $nome . "' editada, mas não foi possível registrar o log.", 'atencao', 'vacinas_select.php');
         exit;
     }
     $stmt_log->close();
 
     $conn->close();
-    mostrarMsg("Vacina '" . $nome . "' editada com sucesso!", 'acerto', 'vacinas.php');
+    mostrarMsg("Vacina '" . $nome . "' editada com sucesso!", 'acerto', 'vacinas_select.php');
     exit;
 }
 ?>

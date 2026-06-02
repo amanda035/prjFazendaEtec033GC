@@ -1,5 +1,6 @@
 <?php
-include '../../auth/db.php';
+include(__DIR__ . "/../../../auth/auth.php");
+include_once(__DIR__ . "/../../../include/funcoes.php");
 
 $id = $_GET['id'];
 $sql = "DELETE FROM vacinas WHERE id=$id";
@@ -26,10 +27,10 @@ if ($conn->query($sql) === TRUE) {
             $stmt_log->close();
         }
     }
-    mostrarMsg("Vacina ID: " . $id . " excluída com sucesso!", 'acerto', '../../public/vacinas.php');
+    mostrarMsg("Vacina ID: " . $id . " excluída com sucesso!", 'acerto', 'vacinas_select.php');
     exit;
 } else {
-    mostrarMsg("Erro ao excluir vacina ID: " . $id . ": " . $conn->error, 'erro', '../../public/vacinas.php');
+    mostrarMsg("Erro ao excluir vacina ID: " . $id . ": " . $conn->error, 'erro', 'vacinas_select.php');
     exit;
 }
 ?>
